@@ -14,6 +14,7 @@ const int MECC_LED_PIN = 3;
 
 // initialize MeccaBrain
 MeccaBrain meccLedChain(MECC_LED_PIN);
+const int MECC_COMM_LOOPS = 20;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -43,21 +44,21 @@ void setup() {
   Serial.begin(9600);
 
   // discover Meccano modules
-  //for (int i = 0; i < 50; i++)
-  //{
+  for (int i = 0; i < MECC_COMM_LOOPS; i++)
+  {
     meccLedChain.communicate();
-  //}
+  }
   
   delay(2000);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  delay(100);
+  // NOP
 }
 
 // action received for Meccano LED
-void actionMeccLed(char setting) {
+void actionMeccLed(int setting) {
   byte red, green, blue;
   byte fadeTime = 0x0;
   if (setting == 0) {
@@ -89,7 +90,10 @@ void actionMeccLed(char setting) {
 void setMeccLedColor(byte red, byte green, byte blue, byte fadeTime)
 {
   meccLedChain.setLEDColor(red, green, blue, fadeTime);
-  meccLedChain.communicate();
+  for (int i = 0; i < MECC_COMM_LOOPS; i++)
+  {
+    meccLedChain.communicate();
+  }
 }
 
 // action received for test (internal Ardino) LED
