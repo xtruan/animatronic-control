@@ -2,8 +2,9 @@ from collections import deque
 import csv
 import argparse
 import time
-import utils.transform as transform
 
+import utils.transform as transform
+import utils.i2c as i2c
 from objects.anim_action import AnimAction
 
 COL_TIME_STR = 0
@@ -39,6 +40,7 @@ def handle_anim():
         end = time.time()
 
 def handle_action(action):
+    i2c.write_anim_i2c(action)
     print(action)
 
 def main():
