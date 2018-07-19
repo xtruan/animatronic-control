@@ -22,8 +22,8 @@ def read_anim_csv(filename, delimiter=',', quotechar='"'):
         time_str = str(row[COL_TIME_STR])
         time_sec = transform.time_convert(time_str)
         device_type = str(row[COL_DEVICE_TYPE])
-        device_id = str(row[COL_DEVICE_ID])
-        setting = str(row[COL_SETTING])
+        device_id = int(row[COL_DEVICE_ID])
+        setting = int(row[COL_SETTING])
         
         action = AnimAction(time_str, time_sec, device_type, device_id, setting)
         anim_actions.append(action)        
