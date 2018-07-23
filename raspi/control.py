@@ -20,7 +20,7 @@ def read_anim_csv(filename, delimiter=',', quotechar='"'):
 
     for row in csv_reader:
         time_str = str(row[COL_TIME_STR])
-        time_sec = transform.time_convert(time_str)
+        time_sec = transform.time_floatify(time_str)
         device_type = str(row[COL_DEVICE_TYPE])
         device_id = int(row[COL_DEVICE_ID])
         setting = int(row[COL_SETTING])
