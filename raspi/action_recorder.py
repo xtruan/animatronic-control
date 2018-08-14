@@ -5,20 +5,27 @@ import utils.transform as transform
 
 csv_file = open('rec.csv', 'w')
 start = time.time()
+key_mode = 0
 
 def on_press(key):
-    global csv_file, start
-    end = time.time()
-    out_str = transform.time_stringify(end - start) + ',SVO,2,90'
-    print(out_str)
-    csv_file.write(out_str + '\n')
+    global csv_file, start, key_mode
+    if key_mode <= 0:
+        key_mode = 1
+        
+        end = time.time()
+        out_str = transform.time_stringify(end - start) + ',SVO,2,90'
+        print(out_str)
+        csv_file.write(out_str + '\n')
 
 def on_release(key):
-    global csv_file, start
-    end = time.time()
-    out_str = transform.time_stringify(end - start) + ',SVO,2,00'
-    print(out_str)
-    csv_file.write(out_str + '\n')
+    global csv_file, start, key_mode
+    if key_mode >= 0:
+        key_mode = -1
+        
+        end = time.time()
+        out_str = transform.time_stringify(end - start) + ',SVO,2,00'
+        print(out_str)
+        csv_file.write(out_str + '\n')
 
     if key == Key.esc:
         # Stop listener
