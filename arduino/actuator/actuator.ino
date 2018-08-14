@@ -1,4 +1,5 @@
 #include <MeccaBrain.h>
+#include <Servo.h>
 #include <Wire.h>
 
 #ifndef cbi
@@ -11,10 +12,22 @@ const int I2C_ADDR = 0x8;
 // configure pin addresses
 const int LED_PIN = LED_BUILTIN;
 const int MECC_LED_PIN = 3;
+const int SERVO_PIN_0 = 5;
+const int SERVO_PIN_1 = 6;
+const int SERVO_PIN_2 = 9;
+const int SERVO_PIN_3 = 10;
+const int SERVO_PIN_4 = 11;
 
 // initialize MeccaBrain
 MeccaBrain meccLedChain(MECC_LED_PIN);
 const int MECC_COMM_LOOPS = 20;
+
+// initialize Servo
+Servo servo0;
+Servo servo1;
+Servo servo2;
+Servo servo3;
+Servo servo4;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -24,6 +37,13 @@ void setup() {
   
   // initialize Meccano LED pin as an output
   pinMode(MECC_LED_PIN, OUTPUT);
+
+  // initialize Servos
+  servo0.attach(SERVO_PIN_0);
+  servo1.attach(SERVO_PIN_1);
+  servo2.attach(SERVO_PIN_2);
+  servo3.attach(SERVO_PIN_3);
+  servo4.attach(SERVO_PIN_4);
 
   Wire.begin(I2C_ADDR);
   
@@ -55,6 +75,15 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
   // NOP
+}
+
+// action received for test (internal Ardino) LED
+void actionTestLed(char setting) {
+  if (setting == 0) {
+    digitalWrite(LED_PIN, 0);
+  } else {
+    digitalWrite(LED_PIN, 1);
+  }
 }
 
 // action received for Meccano LED
@@ -96,13 +125,19 @@ void setMeccLedColor(byte red, byte green, byte blue, byte fadeTime)
   }
 }
 
-// action received for test (internal Ardino) LED
-void actionTestLed(char setting) {
-  if (setting == 0) {
-      digitalWrite(LED_PIN, 0);
-    } else {
-      digitalWrite(LED_PIN, 1);
-    }
+// action received for servo
+void actionServo(char id, char setting) {
+  if (id == 0) {
+    servo0.write(setting * 2);
+  } else if (id == 1) {
+    servo1.write(setting * 2);
+  } else if (id == 2) {
+    servo2.write(setting * 2);
+  } else if (id == 3) {
+    servo3.write(setting * 2);
+  } else if (id == 4) {
+    servo4.write(setting * 2);
+  }
 }
 
 // process received event
@@ -112,7 +147,7 @@ void processEvent(char type, char id, char setting) {
   } else if (type == 'M') {
     actionMeccLed(setting);
   } else if (type == 'S') {
-    // NOP
+    actionServo(id, setting);
   }
 }
 
