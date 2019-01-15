@@ -76,9 +76,6 @@ void setup() {
 
   Wire.onReceive(receiveEvent); // register event handler
 
-  Serial.begin(9600);
-  
-  delay(2000);
 }
 
 // the loop function runs over and over again forever
