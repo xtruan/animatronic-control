@@ -1,4 +1,3 @@
-#include <MeccaBrain.h>
 #include <Servo.h>
 #include <Wire.h>
 
@@ -11,16 +10,12 @@ const int I2C_ADDR = 0x8;
 
 // configure pin addresses
 const int LED_PIN = LED_BUILTIN;
-const int MECC_LED_PIN = 3;
+
 const int SERVO_PIN_0 = 5;
 const int SERVO_PIN_1 = 6;
 const int SERVO_PIN_2 = 9;
 const int SERVO_PIN_3 = 10;
 const int SERVO_PIN_4 = 11;
-
-// initialize MeccaBrain
-MeccaBrain meccLedChain(MECC_LED_PIN);
-const int MECC_COMM_LOOPS = 20;
 
 // initialize Servo
 Servo servo0;
@@ -62,12 +57,6 @@ void setup() {
   Wire.onReceive(receiveEvent); // register event handler
 
   Serial.begin(9600);
-
-  // discover Meccano modules
-  for (int i = 0; i < MECC_COMM_LOOPS; i++)
-  {
-    meccLedChain.communicate();
-  }
   
   delay(2000);
 }
@@ -83,45 +72,6 @@ void actionTestLed(char setting) {
     digitalWrite(LED_PIN, 0);
   } else {
     digitalWrite(LED_PIN, 1);
-  }
-}
-
-// action received for Meccano LED
-void actionMeccLed(int setting) {
-  byte red, green, blue;
-  byte fadeTime = 0x0;
-  if (setting == 0) {
-    red = 0x0; green = 0x0; blue = 0x0;
-  } else if (setting == 1) {
-    red = 0x7; green = 0x0; blue = 0x0;
-  } else if (setting == 2) {
-    red = 0x0; green = 0x7; blue = 0x0;
-  } else if (setting == 3) {
-    red = 0x0; green = 0x0; blue = 0x7;
-  } else if (setting == 4) {
-    red = 0x7; green = 0x7; blue = 0x0;
-  } else if (setting == 5) {
-    red = 0x0; green = 0x7; blue = 0x7;
-  } else if (setting == 6) {
-    red = 0x7; green = 0x0; blue = 0x7;
-  } else if (setting == 7) {
-    red = 0x7; green = 0x7; blue = 0x7;
-  } else {
-    red = 0x0; green = 0x0; blue = 0x0;
-  }
-  setMeccLedColor(red, green, blue, fadeTime);
-}
-
-// set the color of Meccano LED. 
-// red, green and blue are from 0 to 7 (0 - no color, 7 - max color) 
-// fadeTime is from 0 to 7 and means the speed of color change (0 - immediate change, 7 - longest change)
-// example: setMeccLedColor(7, 0, 0, 0) means change color to red immediately
-void setMeccLedColor(byte red, byte green, byte blue, byte fadeTime)
-{
-  meccLedChain.setLEDColor(red, green, blue, fadeTime);
-  for (int i = 0; i < MECC_COMM_LOOPS; i++)
-  {
-    meccLedChain.communicate();
   }
 }
 
@@ -144,8 +94,6 @@ void actionServo(char id, char setting) {
 void processEvent(char type, char id, char setting) {
   if (type == 'L') {
     actionTestLed(setting);
-  } else if (type == 'M') {
-    actionMeccLed(setting);
   } else if (type == 'S') {
     actionServo(id, setting);
   }
