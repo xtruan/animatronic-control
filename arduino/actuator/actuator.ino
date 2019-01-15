@@ -87,12 +87,12 @@ void loop() {
 }
 
 // action received for relay
-void actionRelay(char setting) {
-  int outVal = 0;
+void actionRelay(char id, char setting) {
+  char outVal = LOW;
   if (setting == 0) {
-    outVal = 0;
+    outVal = LOW;
   } else {
-    outVal = 1;
+    outVal = HIGH;
   }
 
   if (id == 0) {
