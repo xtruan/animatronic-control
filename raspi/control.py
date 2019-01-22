@@ -8,9 +8,10 @@ import utils.i2c as i2c
 from objects.anim_action import AnimAction
 
 COL_TIME_STR = 0
-COL_DEVICE_TYPE = 1
-COL_DEVICE_ID = 2
-COL_SETTING = 3
+COL_DEVICE_I2C_ADDR = 1
+COL_DEVICE_TYPE = 2
+COL_DEVICE_ID = 3
+COL_SETTING = 4
 
 anim_actions = deque([])
 
@@ -21,11 +22,12 @@ def read_anim_csv(filename, delimiter=',', quotechar='"'):
     for row in csv_reader:
         time_str = str(row[COL_TIME_STR])
         time_sec = transform.time_floatify(time_str)
+        device_i2c_addr = device_type = int(row[COL_DEVICE_TYPE])
         device_type = str(row[COL_DEVICE_TYPE])
         device_id = int(row[COL_DEVICE_ID])
         setting = int(row[COL_SETTING])
         
-        action = AnimAction(time_str, time_sec, device_type, device_id, setting)
+        action = AnimAction(time_str, time_sec, device_i2c_addr, device_type, device_id, setting)
         anim_actions.append(action)        
 
     csv_file.close()

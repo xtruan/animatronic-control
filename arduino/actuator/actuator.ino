@@ -6,7 +6,7 @@
 #endif
 
 // set I2C address
-const int I2C_ADDR = 0x8;
+const int I2C_ADDR = 8;
 
 // configure pin addresses
 const int RELAY_PIN_0 = 0;
