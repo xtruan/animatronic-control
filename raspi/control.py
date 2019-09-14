@@ -45,6 +45,11 @@ def handle_action(action):
     i2c.write_anim_i2c(action)
     print(action)
 
+def record_mode():
+    start = time.time()
+    rec_action = AnimAction(transform.time_stringify(start), start, 8, 'RECORD', 0, 0)
+    i2c.write_anim_i2c(rec_action)
+
 def record_to_csv(output_file):
     start = time.time()
     rec_action = AnimAction(transform.time_stringify(start), start, 8, 'RECORD', 0, 0)
@@ -85,6 +90,9 @@ def main():
         output_file = args.output
         print('Output file: ' + output_file)
         if '.csv' in output_file.lower():
+            print('Enabling recording...')
+            record_mode()
+            print('Enabled!')
             wait = input('Press enter to continue...')
             record_to_csv(output_file)
 
