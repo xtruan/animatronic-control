@@ -63,6 +63,15 @@ void setup() {
   pinMode(SERVO_PIN_0, OUTPUT);
   pinMode(SERVO_PIN_1, OUTPUT);
 
+  // discover MeccaBrain modules, LEDs turn from green to blue
+  for (int i = 0; i < MECC_COMM_LOOPS; i++) {
+    meccServoChainLeft.communicate();
+    meccServoChainRight.communicate();
+  }
+
+  // wait for discovery
+  delay(2000);
+
   // initialize servos
   //servo0.attach(SERVO_PIN_0);
   //servo1.attach(SERVO_PIN_1);
