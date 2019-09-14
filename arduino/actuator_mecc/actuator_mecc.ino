@@ -29,7 +29,7 @@ const int SERVO_PIN_5 = 11;
 // initialize MeccaBrain
 MeccaBrain meccServoChainLeft(SERVO_PIN_0);
 MeccaBrain meccServoChainRight(SERVO_PIN_1);
-const int MECC_COMM_LOOPS = 50;
+const int MECCA_COMM_LOOPS = 50;
 
 // initialize Servo
 //Servo servo0;
@@ -38,6 +38,8 @@ Servo servo2;
 Servo servo3;
 Servo servo4;
 Servo servo5;
+
+byte MECCA_SERVO_LIM = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -64,7 +66,7 @@ void setup() {
   pinMode(SERVO_PIN_1, OUTPUT);
 
   // discover MeccaBrain modules, LEDs turn from green to blue
-  for (int i = 0; i < MECC_COMM_LOOPS; i++) {
+  for (int i = 0; i < MECCA_COMM_LOOPS; i++) {
     meccServoChainLeft.communicate();
     meccServoChainRight.communicate();
   }
@@ -93,7 +95,8 @@ void setup() {
     cbi(PORTD, 1);
   #endif
 
-  Wire.onReceive(receiveEvent); // register event handler
+  Wire.onReceive(receiveEvent); // register receive event handler
+  Wire.onRequest(requestEvent); // register request event handler
 
 }
 
@@ -151,45 +154,62 @@ const byte LEFT_ARM_ELBOW = 2;
 const byte RIGHT_ARM_PITCH = 3; 
 const byte RIGHT_ARM_ROLL = 4; 
 const byte RIGHT_ARM_ELBOW = 5;
+const byte RIGHT_OFFSET = 3;
 
-// action received for MeccaBrain chain
-void actionMeccaBrain(char id, char setting) {
+// action received for MeccaBrain servo chain
+void actionMeccaServo(char id, char setting) {
+  MECCA_SERVO_LIM = 0;
   switch (id) {
     case LEFT_ARM_PITCH:
-      meccServoChainLeft.setServoPosition(0, setting);
+      meccServoChainLeft.setServoPosition(LEFT_ARM_PITCH, setting);
       meccServoChainLeft.communicate();
       break;
     case LEFT_ARM_ROLL:
-      meccServoChainLeft.setServoPosition(1, setting);
+      meccServoChainLeft.setServoPosition(LEFT_ARM_ROLL, setting);
       meccServoChainLeft.communicate();
       break;
     case LEFT_ARM_ELBOW:
-      meccServoChainLeft.setServoPosition(2, setting);
+      meccServoChainLeft.setServoPosition(LEFT_ARM_ELBOW, setting);
       meccServoChainLeft.communicate();
       break;
     case RIGHT_ARM_PITCH:
-      meccServoChainRight.setServoPosition(0, setting);
+      meccServoChainRight.setServoPosition(RIGHT_ARM_PITCH - RIGHT_OFFSET, setting);
       meccServoChainRight.communicate();
       break;
     case RIGHT_ARM_ROLL:
-      meccServoChainRight.setServoPosition(1, setting);
+      meccServoChainRight.setServoPosition(RIGHT_ARM_ROLL - RIGHT_OFFSET, setting);
       meccServoChainRight.communicate();
       break;
     case RIGHT_ARM_ELBOW:
-      meccServoChainRight.setServoPosition(2, setting);
+      meccServoChainRight.setServoPosition(RIGHT_ARM_ELBOW - RIGHT_OFFSET, setting);
       meccServoChainRight.communicate();
       break;
   }
 } 
 
+// turn on LIM for all MeccaBrain servos
+void actionMeccaServoLIM() {
+  MECCA_SERVO_LIM = 1;
+  meccServoChainLeft.setServotoLIM(LEFT_ARM_PITCH);
+  meccServoChainLeft.setServotoLIM(LEFT_ARM_ROLL);
+  meccServoChainLeft.setServotoLIM(LEFT_ARM_ELBOW);
+  meccServoChainLeft.communicate();
+  meccServoChainRight.setServotoLIM(RIGHT_ARM_PITCH - RIGHT_OFFSET);
+  meccServoChainRight.setServotoLIM(RIGHT_ARM_ROLL - RIGHT_OFFSET);
+  meccServoChainRight.setServotoLIM(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
+  meccServoChainRight.communicate();
+}
+
 // process received event
 void processEvent(char type, char id, char setting) {
-  if (type == 'R') {
+  if (type == 'R') { // Relay
     actionRelay(id, setting);
-  } else if (type == 'S') {
+  } else if (type == 'S') { // Servo
     actionServo(id, setting);
-  } else if (type == 'M') {
-    actionMeccaBrain(id, setting);
+  } else if (type == 'M') { // Mecca Servo
+    actionMeccaServo(id, setting);
+  } else if (type == 'R') { // Record (Mecca Servo LIM)
+    actionMeccaServoLIM();
   }
 }
 
@@ -205,5 +225,40 @@ void receiveEvent(int howMany) {
     } else {
       char c = Wire.read(); // receive byte as a character
     }
+  }
+}
+
+// executes when data is requested by I2C master
+// registered as an event handler; see setup()
+void requestEvent(int howMany) {
+  if (MECCA_SERVO_LIM == 1) {
+    meccServoChainLeft.communicate();
+    byte lp = meccServoChainLeft.getServoPosition(LEFT_ARM_PITCH);
+    byte lr = meccServoChainLeft.getServoPosition(LEFT_ARM_ROLL);
+    byte le = meccServoChainLeft.getServoPosition(LEFT_ARM_ELBOW);
+    
+    meccServoChainRight.communicate();
+    byte rp = meccServoChainRight.getServoPosition(RIGHT_ARM_PITCH - RIGHT_OFFSET);
+    byte rr = meccServoChainRight.getServoPosition(RIGHT_ARM_ROLL - RIGHT_OFFSET);
+    byte re = meccServoChainRight.getServoPosition(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
+    
+    // "success" flag
+    Wire.write(0);
+
+    Wire.write(LEFT_ARM_PITCH);
+    Wire.write(lp);
+    Wire.write(LEFT_ARM_ROLL);
+    Wire.write(lr);
+    Wire.write(LEFT_ARM_ELBOW);
+    Wire.write(le);
+    Wire.write(RIGHT_ARM_PITCH - RIGHT_OFFSET);
+    Wire.write(rp);
+    Wire.write(RIGHT_ARM_ROLL - RIGHT_OFFSET);
+    Wire.write(rr);
+    Wire.write(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
+    Wire.write(re);
+  } else {
+    // failure error condition
+    Wire.write("XXXXXXXXXXXXX");
   }
 }

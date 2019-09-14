@@ -45,21 +45,48 @@ def handle_action(action):
     i2c.write_anim_i2c(action)
     print(action)
 
+def record_to_csv(output_file):
+    start = time.time()
+    rec_action = AnimAction(transform.time_stringify(start), start, 8, 'RECORD', 0, 0)
+    csv_file = open(output_file, 'w')
+
+    while True:
+        data = i2c.read_mecca_i2c(rec_action.device_i2c_addr)
+        end = time.time()
+        str_time = transform.time_stringify(end - start)
+
+        if (data[0] == 0):
+            for i in range (1, 6):
+                j = i * 2
+                out_str = str_time + ',' + str(rec_action.device_i2c_addr) + ',MEC,' + str(data[j - 1]) + ',' + str(data[j])
+                print(out_str)
+                csv_file.write(out_str + '\n')
+        
+        time.sleep(0.5)
+
 def main():
     parser = argparse.ArgumentParser(description="Animatronic Control Program")
-    parser.add_argument('-i', '--input', type=str, required=True)
+    parser.add_argument('-i', '--input', type=str, required=False)
+    parser.add_argument('-o', '--output', type=str, required=False)
     args = parser.parse_args()
 
-    input_file = args.input
-    print('Input file: ' + input_file)
-    if '.csv' in input_file.lower():
-        print('Loading file...')
-        read_anim_csv(input_file)
-        print('Loaded!')
-        wait = input('Press enter to continue...')
-        handle_anim()
-    else:
-        raise Exception('Invalid file type')
+    if args.input is not None:
+        input_file = args.input
+        print('Input file: ' + input_file)
+        if '.csv' in input_file.lower():
+            print('Loading file...')
+            read_anim_csv(input_file)
+            print('Loaded!')
+            wait = input('Press enter to continue...')
+            handle_anim()
+        else:
+            raise Exception('Invalid file type')
+    else if args.output is not None:
+        output_file = args.output
+        print('Output file: ' + output_file)
+        if '.csv' in output_file.lower():
+            wait = input('Press enter to continue...')
+            record_to_csv(output_file)
 
 if __name__ == '__main__':
     main()
