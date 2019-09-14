@@ -189,7 +189,7 @@ void processEvent(char type, char id, char setting) {
   } else if (type == 'S') {
     actionServo(id, setting);
   } else if (type == 'M') {
-    actionServo(id, setting);
+    actionMeccaBrain(id, setting);
   }
 }
 
