@@ -100,9 +100,40 @@ void setup() {
 
 }
 
+const byte LEFT_ARM_PITCH = 0; 
+const byte LEFT_ARM_ROLL = 1; 
+const byte LEFT_ARM_ELBOW = 2;
+const byte RIGHT_ARM_PITCH = 3; 
+const byte RIGHT_ARM_ROLL = 4; 
+const byte RIGHT_ARM_ELBOW = 5;
+
+const byte RIGHT_OFFSET = 3;
+
+byte LIM_LP = 0;
+byte LIM_LR = 0;
+byte LIM_LE = 0;
+byte LIM_RP = 0;
+byte LIM_RR = 0;
+byte LIM_RE = 0;
+
 // the loop function runs over and over again forever
 void loop() {
-  // NOP
+  if (MECCA_SERVO_LIM == 1) {
+    meccServoChainLeft.communicate();
+    LIM_LP = meccServoChainLeft.getServoPosition(LEFT_ARM_PITCH);
+    meccServoChainLeft.communicate();
+    LIM_LR = meccServoChainLeft.getServoPosition(LEFT_ARM_ROLL);
+    meccServoChainLeft.communicate();
+    LIM_LE = meccServoChainLeft.getServoPosition(LEFT_ARM_ELBOW);
+    
+    meccServoChainRight.communicate();
+    LIM_RP = meccServoChainRight.getServoPosition(RIGHT_ARM_PITCH - RIGHT_OFFSET);
+    meccServoChainRight.communicate();
+    LIM_RR = meccServoChainRight.getServoPosition(RIGHT_ARM_ROLL - RIGHT_OFFSET);
+    meccServoChainRight.communicate();
+    LIM_RE = meccServoChainRight.getServoPosition(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
+  }
+  delay(10);
 }
 
 // action received for relay
@@ -148,14 +179,6 @@ void actionServo(char id, char setting) {
   }
 }
 
-const byte LEFT_ARM_PITCH = 0; 
-const byte LEFT_ARM_ROLL = 1; 
-const byte LEFT_ARM_ELBOW = 2;
-const byte RIGHT_ARM_PITCH = 3; 
-const byte RIGHT_ARM_ROLL = 4; 
-const byte RIGHT_ARM_ELBOW = 5;
-const byte RIGHT_OFFSET = 3;
-
 // action received for MeccaBrain servo chain
 void actionMeccaServo(char id, char setting) {
   MECCA_SERVO_LIM = 0;
@@ -191,11 +214,15 @@ void actionMeccaServo(char id, char setting) {
 void actionMeccaServoLIM() {
   MECCA_SERVO_LIM = 1;
   meccServoChainLeft.setServotoLIM(LEFT_ARM_PITCH);
+  meccServoChainLeft.communicate();
   meccServoChainLeft.setServotoLIM(LEFT_ARM_ROLL);
+  meccServoChainLeft.communicate();
   meccServoChainLeft.setServotoLIM(LEFT_ARM_ELBOW);
   meccServoChainLeft.communicate();
   meccServoChainRight.setServotoLIM(RIGHT_ARM_PITCH - RIGHT_OFFSET);
+  meccServoChainRight.communicate();
   meccServoChainRight.setServotoLIM(RIGHT_ARM_ROLL - RIGHT_OFFSET);
+  meccServoChainRight.communicate();
   meccServoChainRight.setServotoLIM(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
   meccServoChainRight.communicate();
 }
@@ -230,33 +257,23 @@ void receiveEvent(int howMany) {
 
 // executes when data is requested by I2C master
 // registered as an event handler; see setup()
-void requestEvent(int howMany) {
+void requestEvent() {
   if (MECCA_SERVO_LIM == 1) {
-    meccServoChainLeft.communicate();
-    byte lp = meccServoChainLeft.getServoPosition(LEFT_ARM_PITCH);
-    byte lr = meccServoChainLeft.getServoPosition(LEFT_ARM_ROLL);
-    byte le = meccServoChainLeft.getServoPosition(LEFT_ARM_ELBOW);
-    
-    meccServoChainRight.communicate();
-    byte rp = meccServoChainRight.getServoPosition(RIGHT_ARM_PITCH - RIGHT_OFFSET);
-    byte rr = meccServoChainRight.getServoPosition(RIGHT_ARM_ROLL - RIGHT_OFFSET);
-    byte re = meccServoChainRight.getServoPosition(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
-    
     // "success" flag
     Wire.write(0);
 
     Wire.write(LEFT_ARM_PITCH);
-    Wire.write(lp);
+    Wire.write(LIM_LP);
     Wire.write(LEFT_ARM_ROLL);
-    Wire.write(lr);
+    Wire.write(LIM_LR);
     Wire.write(LEFT_ARM_ELBOW);
-    Wire.write(le);
-    Wire.write(RIGHT_ARM_PITCH - RIGHT_OFFSET);
-    Wire.write(rp);
-    Wire.write(RIGHT_ARM_ROLL - RIGHT_OFFSET);
-    Wire.write(rr);
-    Wire.write(RIGHT_ARM_ELBOW - RIGHT_OFFSET);
-    Wire.write(re);
+    Wire.write(LIM_LE);
+    Wire.write(RIGHT_ARM_PITCH);
+    Wire.write(LIM_RP);
+    Wire.write(RIGHT_ARM_ROLL);
+    Wire.write(LIM_RR);
+    Wire.write(RIGHT_ARM_ELBOW);
+    Wire.write(LIM_RE);
   } else {
     // failure error condition
     Wire.write("XXXXXXXXXXXXX");

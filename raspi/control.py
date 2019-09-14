@@ -61,7 +61,7 @@ def record_to_csv(output_file):
         str_time = transform.time_stringify(end - start)
 
         if (data[0] == 0):
-            for i in range (1, 6):
+            for i in range (1, 7):
                 j = i * 2
                 out_str = str_time + ',' + str(rec_action.device_i2c_addr) + ',MEC,' + str(data[j - 1]) + ',' + str(data[j])
                 print(out_str)
