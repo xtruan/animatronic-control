@@ -208,7 +208,7 @@ void processEvent(char type, char id, char setting) {
     actionServo(id, setting);
   } else if (type == 'M') { // Mecca Servo
     actionMeccaServo(id, setting);
-  } else if (type == 'R') { // Record (Mecca Servo LIM)
+  } else if (type == 'L') { // LIM (Mecca Servo LIM)
     actionMeccaServoLIM();
   }
 }
