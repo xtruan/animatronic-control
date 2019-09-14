@@ -86,7 +86,7 @@ def main():
             handle_anim()
         else:
             raise Exception('Invalid file type')
-    else if args.output is not None:
+    elif args.output is not None:
         output_file = args.output
         print('Output file: ' + output_file)
         if '.csv' in output_file.lower():
@@ -95,6 +95,8 @@ def main():
             print('Enabled!')
             wait = input('Press enter to continue...')
             record_to_csv(output_file)
+    else:
+        print('Nothing to do!')
 
 if __name__ == '__main__':
     main()
