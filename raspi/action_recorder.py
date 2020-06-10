@@ -19,7 +19,7 @@ def on_press(key):
         
         end = time.time()
         act = key_to_actuator(key)
-        out_str = transform.time_stringify(end - start) + ',8,' + act + ',90'
+        out_str = transform.time_stringify(end - start) + ',' + act + ',90'
         print(out_str)
         csv_file.write(out_str + '\n')
 
@@ -30,7 +30,7 @@ def on_release(key):
         
         end = time.time()
         act = key_to_actuator(key)
-        out_str = transform.time_stringify(end - start) + ',8,' + act + ',00'
+        out_str = transform.time_stringify(end - start) + ',' + act + ',00'
         print(out_str)
         csv_file.write(out_str + '\n')
 
@@ -43,25 +43,25 @@ def on_release(key):
 def key_to_actuator(key):
     key_str = str(key).replace("'", "")
     if key == Key.space:
-        return 'SERVO,1'
+        return '4,SERVO,1'
     if key_str == 'a':
-        return 'LIGHT,0'
+        return '8,LIGHT,0'
     elif key_str == 's':
-        return 'LIGHT,1'
+        return '8,LIGHT,1'
     elif key_str == 'd':
-        return 'LIGHT,2'
+        return '8,LIGHT,2'
     elif key_str == 'f':
-        return 'LIGHT,3'
+        return '8,LIGHT,3'
     elif key_str == 'j':
-        return 'LIGHT,4'
+        return '8,LIGHT,4'
     elif key_str == 'k':
-        return 'LIGHT,5'
+        return '8,LIGHT,5'
     elif key_str == 'l':
-        return 'LIGHT,6'
+        return '8,LIGHT,6'
     elif key_str == ';':
-        return 'LIGHT,7'
+        return '8,LIGHT,7'
     else:
-        return 'SERVO,1'
+        return '4,SERVO,1'
 
 # Collect events until released
 with Listener(
