@@ -45,21 +45,21 @@ def key_to_actuator(key):
     if key == Key.space:
         return 'SERVO,1'
     if key_str == 'a':
-        return 'LIGHT,1'
+        return 'LIGHT,0'
     elif key_str == 's':
-        return 'LIGHT,2'
+        return 'LIGHT,1'
     elif key_str == 'd':
-        return 'LIGHT,3'
+        return 'LIGHT,2'
     elif key_str == 'f':
-        return 'LIGHT,4'
+        return 'LIGHT,3'
     elif key_str == 'j':
-        return 'LIGHT,5'
+        return 'LIGHT,4'
     elif key_str == 'k':
-        return 'LIGHT,6'
+        return 'LIGHT,5'
     elif key_str == 'l':
-        return 'LIGHT,7'
+        return 'LIGHT,6'
     elif key_str == ';':
-        return 'LIGHT,8'
+        return 'LIGHT,7'
     else:
         return 'SERVO,1'
 
