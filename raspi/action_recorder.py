@@ -12,6 +12,7 @@ def on_press(key):
 
     if key == Key.esc:
         # Stop listener
+        csv_file.close()
         return False
 
     if key_mode <= 0:

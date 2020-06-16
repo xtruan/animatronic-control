@@ -8,4 +8,8 @@ def time_stringify(time_secs):
     frac = float(time_secs) - int(time_secs)
     frac = int(frac * 1000)
     return time.strftime('%H:%M:%S', time.gmtime(time_secs)) + '.' + str(frac)
+
+def time_ms_stringify(time_ms):
+    time_secs = time_ms / 1000.0
+    return time_stringify(time_secs)
     
