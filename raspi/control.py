@@ -88,13 +88,13 @@ def handle_anim(offset=0.0):
     print('Playing...')
     print()
 
-    start = time.time()
-    end = time.time() + offset
+    start = time.time() + offset
+    end = time.time()
     while len(anim_actions) > 0:
         if anim_actions[0].time_sec <= end - start:
             handle_action(anim_actions.popleft())
         time.sleep(0.001)
-        end = time.time() + offset
+        end = time.time()
 
 def handle_action(action):
     #i2c.write_anim_i2c(action)
@@ -130,7 +130,7 @@ def main():
 
         playsound('let_it_go.wav', False)
 
-        handle_anim(offset=3.503648)
+        handle_anim(offset=-3.503648)
 
         # notes = {}
         # note_count = {}
