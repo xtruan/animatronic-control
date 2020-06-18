@@ -93,7 +93,7 @@ def handle_anim(offset=0.0):
     while len(anim_actions) > 0:
         if anim_actions[0].time_sec <= end - start:
             handle_action(anim_actions.popleft())
-        time.sleep(0.01)
+        time.sleep(0.001)
         end = time.time() + offset
 
 def handle_action(action):
