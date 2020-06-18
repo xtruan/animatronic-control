@@ -40,20 +40,6 @@ def read_anim_csv(filename, delimiter=',', quotechar='"'):
     csv_file.close()
 
 def build_anim_action_from_mid_msg(time_sec, msg):
-    
-    # try:
-    #     if msg.velocity == 0:
-    #         notes[msg.note] = '   '
-    #     else:
-    #         notes[msg.note] = 'XXX'
-    #         if msg.note not in note_count:
-    #             note_count[msg.note] = -1
-    #         note_count[msg.note] += 1
-    #     print(str(notes))
-    #     print(str(note_count))
-    # except AttributeError:
-    #     pass
-
     try:
         time_str = str(transform.time_stringify(time_sec))
         device_i2c_addr = 8
@@ -74,6 +60,7 @@ def mid_note_to_device_id(note):
 def read_anim_mid(filename):
     mid = mido.MidiFile(filename)
     
+    ret_offset = 0.0
     time_sec = 0.0
     for msg in mid:
         time_sec += msg.time
@@ -82,7 +69,11 @@ def read_anim_mid(filename):
             if action is not None:
                 anim_actions.append(action)
         else:
+            if '[music_start]' in str(msg):
+                ret_offset = time_sec * -1.0
             print(msg)
+    
+    return ret_offset
 
 def handle_anim(offset=0.0):
     print('Playing...')
@@ -109,9 +100,11 @@ def handle_action(action):
 def main():
     parser = argparse.ArgumentParser(description="Animatronic Control Program")
     parser.add_argument('-i', '--input', type=str, required=True)
+    parser.add_argument('-a', '--audio', type=str, required=True)
     args = parser.parse_args()
 
     input_file = args.input
+    audio_file = args.audio
     print('Input file: ' + input_file)
     if '.csv' in input_file.lower():
         print('Loading file...')
@@ -119,19 +112,20 @@ def main():
         print('Loaded!')
         wait = input('Press enter to continue...')
 
-        playsound('let_it_go.wav', False)
+        playsound(audio_file, False)
 
         handle_anim()
     if '.mid' in input_file.lower():
         print('Loading file...')
-        read_anim_mid(input_file)
-        print('Loaded!')
+        offset = read_anim_mid(input_file)
+        print('Loaded! (offset = ' + str(offset) + ')')
         wait = input('Press enter to continue...')
 
-        playsound('let_it_go.wav', False)
+        playsound(audio_file, False)
 
-        handle_anim(offset=-3.503648)
+        handle_anim(offset=offset)
 
+        # DEBUGGING
         # notes = {}
         # note_count = {}
         # for msg in mid:
