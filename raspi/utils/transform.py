@@ -7,7 +7,16 @@ def time_floatify(time_str):
 def time_stringify(time_secs):
     frac = float(time_secs) - int(time_secs)
     frac = int(frac * 1000)
-    return time.strftime('%H:%M:%S', time.gmtime(time_secs)) + '.' + str(frac)
+
+    frac_str = ''
+    if frac < 10:
+        frac_str = str(frac) + '00'
+    elif frac < 100:
+        frac_str = str(frac) + '0'
+    else:
+        frac_str = str(frac)
+
+    return time.strftime('%H:%M:%S', time.gmtime(time_secs)) + '.' + frac_str
 
 def time_ms_stringify(time_ms):
     time_secs = time_ms / 1000.0

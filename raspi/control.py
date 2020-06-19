@@ -19,6 +19,7 @@ COL_SETTING = 4
 anim_actions = deque([])
 action_viz = {}
 mid_notes = {}
+mid_note_ids = {}
 
 def read_anim_csv(filename, delimiter=',', quotechar='"'):
     csv_file = open(filename, 'r')
@@ -64,7 +65,17 @@ def build_anim_action_from_mid_msg(time_sec, msg):
     
 def mid_note_to_device_id(note):
     if note not in mid_notes:
-        mid_notes[note] = len(mid_notes)
+        mid_notes[note] = note #len(mid_notes)
+        
+        note_str = ''
+        if note < 10:
+            note_str = '00' + str(note)
+        elif note < 100:
+            note_str = '0' + str(note)
+        else:
+            note_str = str(note)
+        mid_note_ids[mid_notes[note]] = note_str
+
     return mid_notes[note]
 
 def read_anim_mid(filename):
@@ -101,43 +112,62 @@ def handle_anim(offset=0.0):
 
     start = time.time() + offset
     end = time.time()
-    while len(anim_actions) > 0:
-        if anim_actions[0].time_sec <= end - start:
-            handle_action(anim_actions.popleft())
-        time.sleep(0.001)
+    num_actions = len(anim_actions)
+    while num_actions > 0:
+        elapsed = end - start
+        while num_actions > 0 and anim_actions[0].time_sec <= elapsed:
+            num_actions -= 1
+            handle_action(elapsed, num_actions, anim_actions.popleft())
+        time.sleep(0.0001)
         end = time.time()
 
-def handle_action(action):
+def handle_action(time, num_actions, action):
     #i2c.write_anim_i2c(action)
     
     if action.setting == 0:
-        action_viz[action.device_id] = '   '
+        #action_viz[action.device_id] = '   '
+        action_viz[action.device_id] = ' '
     else:
-        action_viz[action.device_id] = 'XXX'
+        #action_viz[action.device_id] = mid_note_ids[action.device_id]
+        action_viz[action.device_id] = 'X'
     
-    print('\r{}'.format('  '.join(action_viz.values())), end="")
+    print('\r' + transform.time_stringify(time) + ' ' + str(num_actions), end = ' ')
+    for key in sorted(action_viz): 
+        print(action_viz[key], end = ' ') 
 
 def main():
     parser = argparse.ArgumentParser(description="Animatronic Control Program")
     parser.add_argument('-i', '--input', type=str, required=True)
     parser.add_argument('-a', '--audio', type=str, required=True)
+    parser.add_argument('-o', '--offset', type=str, required=False)
     args = parser.parse_args()
 
     input_file = args.input
     audio_file = args.audio
+    offset = None
+    if args.offset is not None:
+        offset = float(args.offset)
+
     print('Input file: ' + input_file)
     if '.csv' in input_file.lower():
         print('Loading file...')
         read_anim_csv(input_file)
-        print('Loaded!')
+        if offset is None:
+            offset = 0.0
+        print('Loaded! (offset = ' + str(offset) + ')')
         wait = input('Press enter to continue...')
 
         playsound(audio_file, False)
 
-        handle_anim()
+        handle_anim(offset=offset)
     if '.mid' in input_file.lower():
         print('Loading file...')
-        offset = read_anim_mid(input_file)
+        
+        mid_offset = read_anim_mid(input_file)
+        if offset is None:
+            offset = mid_offset
+        if offset is None:
+            offset = 0.0
         print('Loaded! (offset = ' + str(offset) + ')')
         wait = input('Press enter to continue...')
 
@@ -167,8 +197,6 @@ def main():
         
     else:
         raise Exception('Invalid file type')
-
-    time.sleep(5)
 
 if __name__ == '__main__':
     main()
