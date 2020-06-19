@@ -69,9 +69,9 @@ def mid_note_to_device_id(note):
         
         note_str = ''
         if note < 10:
-            note_str = '00' + str(note)
+            note_str = '00{}'.format(str(note))
         elif note < 100:
-            note_str = '0' + str(note)
+            note_str = '0{}'.format(str(note))
         else:
             note_str = str(note)
         mid_note_ids[mid_notes[note]] = note_str
@@ -131,7 +131,7 @@ def handle_action(time, num_actions, action):
         #action_viz[action.device_id] = mid_note_ids[action.device_id]
         action_viz[action.device_id] = 'X'
     
-    print('\r' + transform.time_stringify(time) + ' ' + str(num_actions), end = ' ')
+    print('\r{} {}'.format(transform.time_stringify(time), str(num_actions)), end = ' ')
     for key in sorted(action_viz): 
         print(action_viz[key], end = ' ') 
 

@@ -10,9 +10,9 @@ def time_stringify(time_secs):
 
     frac_str = ''
     if frac < 10:
-        frac_str = str(frac) + '00'
+        frac_str = '{}00'.format(str(frac))
     elif frac < 100:
-        frac_str = str(frac) + '0'
+        frac_str = '{}0'.format(str(frac))
     else:
         frac_str = str(frac)
 
